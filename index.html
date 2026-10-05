@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>سباق المجموعات</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Tahoma, Arial, sans-serif;
+  background:#fbf6f8;
+  color:#725f69;
+  padding:30px 18px;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+}
+
+
+/* =========================
+   العنوان
+========================= */
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:22px;
+}
+
+.title h1{
+  margin:0;
+  font-size:28px;
+  color:#725d68;
+}
+
+.title p{
+  margin:7px 0 0;
+  color:#a08b95;
+  font-size:14px;
+}
+
+.reset{
+  border:1px solid #eadde3;
+  background:#fff;
+  color:#816d77;
+  padding:11px 18px;
+  border-radius:20px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+
+/* =========================
+   اللوحة
+========================= */
+
+.board{
+  position:relative;
+  overflow:hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fffdfd,
+      #fcf6f8 55%,
+      #f7f3fa
+    );
+
+  border:1px solid #eee1e7;
+  border-radius:32px;
+
+  padding:28px;
+
+  box-shadow:
+    0 15px 40px rgba(120,90,105,.06);
+}
+
+
+/* زخارف بسيطة */
+
+.sparkle{
+  position:absolute;
+  color:#dab8c7;
+  opacity:.45;
+}
+
+.sparkle.one{
+  top:18px;
+  left:25px;
+  font-size:25px;
+}
+
+.sparkle.two{
+  bottom:18px;
+  right:25px;
+  font-size:20px;
+}
+
+
+/* =========================
+   المجموعة
+========================= */
+
+.team{
+  display:grid;
+  grid-template-columns:155px 1fr 100px;
+  align-items:center;
+
+  gap:20px;
+
+  background:rgba(255,255,255,.78);
+
+  border:1px solid #eee3e8;
+  border-radius:23px;
+
+  padding:15px 18px;
+  margin-bottom:12px;
+
+  box-shadow:
+    0 5px 18px rgba(120,90,105,.04);
+
+  transition:.3s;
+}
+
+.team.finished{
+  background:#fffafc;
+  box-shadow:
+    0 0 0 2px rgba(226,184,202,.18),
+    0 8px 25px rgba(190,139,163,.10);
+}
+
+
+/* اسم المجموعة */
+
+.team-info{
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.icon-box{
+  width:43px;
+  height:43px;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  border-radius:50%;
+  background:#fff;
+
+  box-shadow:
+    0 3px 10px rgba(120,90,105,.08);
+}
+
+.team-name{
+  font-weight:bold;
+  font-size:15px;
+}
+
+.team-state{
+  font-size:12px;
+  color:#a28e98;
+  margin-top:4px;
+}
+
+
+/* =========================
+   المسار
+========================= */
+
+.track{
+  height:58px;
+  position:relative;
+  direction:ltr;
+}
+
+.track-line{
+  position:absolute;
+
+  left:20px;
+  right:20px;
+
+  top:28px;
+
+  height:4px;
+
+  border-radius:20px;
+  background:#eee8eb;
+}
+
+.progress{
+  position:absolute;
+
+  left:20px;
+  top:28px;
+
+  height:4px;
+
+  border-radius:20px;
+
+  transition:width .6s ease;
+}
+
+
+/* المحطات */
+
+.stations{
+  position:absolute;
+
+  left:20px;
+  right:20px;
+
+  top:0;
+  bottom:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.station{
+  width:14px;
+  height:14px;
+
+  background:#fff;
+
+  border:3px solid;
+  border-radius:50%;
+
+  transition:.25s;
+}
+
+.station.done{
+  transform:scale(1.12);
+}
+
+
+/* الرمز المتحرك */
+
+.runner{
+  position:absolute;
+
+  top:5px;
+
+  width:47px;
+  height:47px;
+
+  margin-left:-23.5px;
+
+  border-radius:50%;
+
+  background:#fff;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  z-index:5;
+
+  box-shadow:
+    0 5px 14px rgba(120,90,105,.13);
+
+  transition:
+    left .65s cubic-bezier(.2,.8,.2,1),
+    transform .3s ease;
+}
+
+.runner.arrived{
+  animation:runnerCelebrate .8s ease;
+}
+
+@keyframes runnerCelebrate{
+
+  0%,100%{
+    transform:scale(1);
+  }
+
+  30%{
+    transform:scale(1.25) rotate(-8deg);
+  }
+
+  60%{
+    transform:scale(1.18) rotate(8deg);
+  }
+
+}
+
+
+/* =========================
+   الأزرار
+========================= */
+
+.controls{
+  display:flex;
+  gap:7px;
+}
+
+.controls button{
+  width:42px;
+  height:42px;
+
+  border-radius:50%;
+
+  cursor:pointer;
+
+  font-size:17px;
+  font-weight:bold;
+
+  transition:.2s;
+}
+
+.controls button:active{
+  transform:scale(.9);
+}
+
+.back{
+  background:#fff;
+  border:1px solid #e9dde2;
+  color:#88727d;
+}
+
+.next{
+  background:#f8e9f0;
+  border:1px solid #ead5df;
+  color:#7d6571;
+}
+
+
+/* =========================
+   خط النهاية
+========================= */
+
+.finish-area{
+  margin-top:25px;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  gap:13px;
+
+  color:#8d7581;
+}
+
+.finish-star{
+  width:62px;
+  height:62px;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  border-radius:50%;
+
+  background:#fff;
+
+  border:1px solid #eee0d5;
+
+  box-shadow:
+    0 5px 15px rgba(120,90,105,.08);
+}
+
+.finish-star svg{
+  width:43px;
+}
+
+.finish-star.celebrate{
+  animation:starCelebrate 1s ease 2;
+}
+
+@keyframes starCelebrate{
+
+  0%,100%{
+    transform:scale(1) rotate(0deg);
+  }
+
+  35%{
+    transform:scale(1.25) rotate(-8deg);
+    box-shadow:
+      0 0 0 10px rgba(245,218,159,.14),
+      0 0 30px rgba(229,185,113,.30);
+  }
+
+  70%{
+    transform:scale(1.15) rotate(8deg);
+  }
+
+}
+
+
+/* =========================
+   شاشة الفوز
+========================= */
+
+.winner-overlay{
+  position:fixed;
+
+  inset:0;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(255,248,251,.62);
+
+  backdrop-filter:blur(3px);
+
+  z-index:1000;
+
+  overflow:hidden;
+
+  pointer-events:none;
+}
+
+.winner-card{
+  position:relative;
+  z-index:20;
+
+  min-width:300px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff,
+      #fff9fc
+    );
+
+  border:1px solid #ead7e0;
+
+  border-radius:32px;
+
+  padding:34px 45px;
+
+  text-align:center;
+
+  box-shadow:
+    0 22px 70px rgba(110,80,95,.17);
+
+  animation:winnerPop .6s
+    cubic-bezier(.2,.9,.3,1.2);
+}
+
+.winner-icon{
+  width:75px;
+  height:75px;
+
+  margin:auto;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:#fff8fb;
+
+  border:1px solid #f0dfe7;
+
+  animation:iconBounce .8s ease;
+}
+
+.winner-icon svg{
+  width:45px;
+  height:45px;
+}
+
+.winner-card h2{
+  margin:15px 0 6px;
+
+  color:#765e6b;
+  font-size:25px;
+}
+
+.winner-card p{
+  margin:0;
+  color:#a18c96;
+  font-size:14px;
+}
+
+.winner-card .small-title{
+  color:#c294a9;
+  font-size:13px;
+  font-weight:bold;
+  letter-spacing:.5px;
+}
+
+
+/* لمعات حول البطاقة */
+
+.glow-star{
+  position:absolute;
+
+  width:7px;
+  height:7px;
+
+  background:#e2b6c9;
+
+  transform:rotate(45deg);
+
+  animation:glow 1s ease infinite alternate;
+}
+
+.gs1{
+  top:24px;
+  right:28px;
+}
+
+.gs2{
+  bottom:28px;
+  left:30px;
+  animation-delay:.3s;
+}
+
+.gs3{
+  top:48px;
+  left:23px;
+  animation-delay:.6s;
+}
+
+@keyframes glow{
+
+  from{
+    opacity:.25;
+    transform:
+      rotate(45deg)
+      scale(.7);
+  }
+
+  to{
+    opacity:1;
+    transform:
+      rotate(45deg)
+      scale(1.3);
+  }
+
+}
+
+@keyframes winnerPop{
+
+  0%{
+    opacity:0;
+    transform:
+      scale(.65)
+      translateY(25px);
+  }
+
+  70%{
+    opacity:1;
+    transform:
+      scale(1.06)
+      translateY(-3px);
+  }
+
+  100%{
+    transform:
+      scale(1)
+      translateY(0);
+  }
+
+}
+
+@keyframes iconBounce{
+
+  0%{
+    transform:scale(.5);
+  }
+
+  50%{
+    transform:scale(1.2) rotate(8deg);
+  }
+
+  100%{
+    transform:scale(1);
+  }
+
+}
+
+
+/* =========================
+   الكونفيتي
+========================= */
+
+.confetti{
+  position:absolute;
+
+  top:-30px;
+
+  width:10px;
+  height:16px;
+
+  border-radius:3px;
+
+  z-index:5;
+
+  animation:
+    confettiFall linear forwards;
+}
+
+@keyframes confettiFall{
+
+  0%{
+    transform:
+      translateY(-10vh)
+      rotate(0deg);
+
+    opacity:1;
+  }
+
+  100%{
+    transform:
+      translateY(115vh)
+      rotate(720deg);
+
+    opacity:.7;
+  }
+
+}
+
+
+/* دوائر احتفالية */
+
+.bubble{
+  position:absolute;
+
+  border-radius:50%;
+
+  opacity:.55;
+
+  animation:
+    bubblePop 1.8s ease forwards;
+}
+
+@keyframes bubblePop{
+
+  0%{
+    transform:scale(0);
+    opacity:0;
+  }
+
+  35%{
+    opacity:.6;
+  }
+
+  100%{
+    transform:scale(2.5);
+    opacity:0;
+  }
+
+}
+
+
+/* =========================
+   الجوال
+========================= */
+
+@media(max-width:750px){
+
+  body{
+    padding:18px 10px;
+  }
+
+  .board{
+    padding:16px;
+  }
+
+  .team{
+    grid-template-columns:1fr auto;
+  }
+
+  .track{
+    grid-column:1 / -1;
+    grid-row:2;
+  }
+
+  .team-info{
+    grid-column:1;
+  }
+
+  .controls{
+    grid-column:2;
+  }
+
+  .winner-card{
+    min-width:280px;
+    padding:30px 25px;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+
+    <div class="title">
+
+      <h1>
+        سباق المجموعات
+      </h1>
+
+      <p>
+        كل خطوة تقرّب مجموعتك من خط النهاية
+      </p>
+
+    </div>
+
+
+    <button
+      class="reset"
+      onclick="resetGame()"
+    >
+      ↻ بداية جديدة
+    </button>
+
+  </div>
+
+
+  <div class="board">
+
+    <div class="sparkle one">
+      ✦
+    </div>
+
+    <div class="sparkle two">
+      ✧
+    </div>
+
+
+    <div id="teams"></div>
+
+
+    <div class="finish-area">
+
+      <div>
+        <b>خط النهاية</b>
+      </div>
+
+
+      <div
+        class="finish-star"
+        id="finishStar"
+      >
+
+        <svg viewBox="0 0 60 60">
+
+          <path
+            d="
+            M30 5
+            L37 22
+            L55 23
+            L41 34
+            L46 52
+            L30 42
+            L14 52
+            L19 34
+            L5 23
+            L23 22
+            Z
+            "
+            fill="#f2d79a"
+            stroke="#d5b675"
+            stroke-width="2"
+          />
+
+        </svg>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- شاشة الاحتفال -->
+
+<div
+  class="winner-overlay"
+  id="winner"
+>
+
+  <div class="winner-card">
+
+    <span class="glow-star gs1"></span>
+    <span class="glow-star gs2"></span>
+    <span class="glow-star gs3"></span>
+
+
+    <div class="small-title">
+      وصلت إلى خط النهاية
+    </div>
+
+
+    <div
+      class="winner-icon"
+      id="winnerIcon"
+    ></div>
+
+
+    <h2 id="winnerName"></h2>
+
+
+    <p>
+      أحسنتن! 🎉
+    </p>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const teamsData = [
+
+  {
+    name:"المجموعة ١",
+    color:"#d99db5",
+    icon:"butterfly"
+  },
+
+  {
+    name:"المجموعة ٢",
+    color:"#aa9ac8",
+    icon:"star"
+  },
+
+  {
+    name:"المجموعة ٣",
+    color:"#d5af82",
+    icon:"heart"
+  },
+
+  {
+    name:"المجموعة ٤",
+    color:"#91b5a5",
+    icon:"flower"
+  },
+
+  {
+    name:"المجموعة ٥",
+    color:"#c894b9",
+    icon:"moon"
+  },
+
+  {
+    name:"المجموعة ٦",
+    color:"#95a7ca",
+    icon:"diamond"
+  }
+
+];
+
+
+const positions =
+  teamsData.map(() => 0);
+
+
+
+/* =========================
+   رسم الرموز
+========================= */
+
+function createSVG(type,color){
+
+  let svg = `
+
+  <svg
+    viewBox="-20 -20 40 40"
+    width="27"
+    height="27"
+  >
+
+  `;
+
+
+  if(type==="star"){
+
+    svg += `
+
+    <path
+      d="
+      M0 -13
+      L4 -4
+      L14 -4
+      L6 2
+      L9 12
+      L0 6
+      L-9 12
+      L-6 2
+      L-14 -4
+      L-4 -4
+      Z
+      "
+      fill="${color}"
+    />
+
+    `;
+
+  }
+
+
+  else if(type==="heart"){
+
+    svg += `
+
+    <path
+      d="
+      M0 13
+      C-19 2 -16 -14 -5 -14
+      C1 -14 4 -9 0 -5
+      C5 -15 19 -14 18 0
+      C17 7 9 12 0 16
+      Z
+      "
+      fill="${color}"
+      transform="scale(.82)"
+    />
+
+    `;
+
+  }
+
+
+  else if(type==="flower"){
+
+    for(let a=0;a<360;a+=72){
+
+      svg += `
+
+      <ellipse
+        cx="0"
+        cy="-8"
+        rx="5.5"
+        ry="9"
+        fill="${color}"
+        transform="rotate(${a})"
+      />
+
+      `;
+
+    }
+
+    svg += `
+
+    <circle
+      r="4"
+      fill="#fff1d5"
+    />
+
+    `;
+
+  }
+
+
+  else if(type==="moon"){
+
+    svg += `
+
+    <circle
+      r="12"
+      fill="${color}"
+    />
+
+    <circle
+      cx="7"
+      cy="-4"
+      r="11"
+      fill="white"
+    />
+
+    `;
+
+  }
+
+
+  else if(type==="diamond"){
+
+    svg += `
+
+    <path
+      d="
+      M0 -13
+      L12 0
+      L0 13
+      L-12 0
+      Z
+      "
+      fill="${color}"
+    />
+
+    `;
+
+  }
+
+
+  else{
+
+    svg += `
+
+    <ellipse
+      cx="-7"
+      cy="-4"
+      rx="7"
+      ry="10"
+      fill="${color}"
+      transform="rotate(-28 -7 -4)"
+    />
+
+    <ellipse
+      cx="7"
+      cy="-4"
+      rx="7"
+      ry="10"
+      fill="${color}"
+      transform="rotate(28 7 -4)"
+    />
+
+    <ellipse
+      cx="-5"
+      cy="7"
+      rx="5"
+      ry="7"
+      fill="${color}"
+      opacity=".8"
+    />
+
+    <ellipse
+      cx="5"
+      cy="7"
+      rx="5"
+      ry="7"
+      fill="${color}"
+      opacity=".8"
+    />
+
+    <path
+      d="M0 -9 V10"
+      stroke="#806b76"
+      stroke-width="1.8"
+      stroke-linecap="round"
+    />
+
+    `;
+
+  }
+
+
+  svg += `</svg>`;
+
+  return svg;
+
+}
+
+
+
+/* =========================
+   إنشاء المجموعات
+========================= */
+
+function buildTeams(){
+
+  const container =
+    document.getElementById("teams");
+
+
+  container.innerHTML="";
+
+
+  teamsData.forEach(
+    (team,index)=>{
+
+      const row =
+        document.createElement("div");
+
+
+      row.className="team";
+
+      row.id=`team-${index}`;
+
+
+      row.innerHTML = `
+
+        <div class="team-info">
+
+          <div class="icon-box">
+
+            ${createSVG(
+              team.icon,
+              team.color
+            )}
+
+          </div>
+
+
+          <div>
+
+            <div class="team-name">
+              ${team.name}
+            </div>
+
+            <div
+              class="team-state"
+              id="state-${index}"
+            >
+              عند البداية
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="track">
+
+
+          <div class="track-line">
+          </div>
+
+
+          <div
+            class="progress"
+            id="progress-${index}"
+            style="
+            background:${team.color};
+            width:0;
+            "
+          >
+          </div>
+
+
+
+          <div
+            class="stations"
+            id="stations-${index}"
+          >
+
+            ${
+              Array(7)
+              .fill(0)
+              .map(
+                ()=>`
+
+                <div
+                  class="station"
+                  style="
+                  border-color:
+                  ${team.color}
+                  "
+                ></div>
+
+                `
+              )
+              .join("")
+            }
+
+          </div>
+
+
+
+          <div
+            class="runner"
+            id="runner-${index}"
+            style="
+            border:
+            2px solid ${team.color};
+            left:20px;
+            "
+          >
+
+            ${
+              createSVG(
+                team.icon,
+                team.color
+              )
+            }
+
+          </div>
+
+        </div>
+
+
+
+        <div class="controls">
+
+          <button
+            class="back"
+            onclick="
+            moveTeam(
+              ${index},
+              -1
+            )
+            "
+          >
+            ↩
+          </button>
+
+
+          <button
+            class="next"
+            onclick="
+            moveTeam(
+              ${index},
+              1
+            )
+            "
+          >
+            ➜
+          </button>
+
+        </div>
+
+      `;
+
+
+      container.appendChild(row);
+
+    }
+  );
+
+
+  teamsData.forEach(
+    (_,i)=>updateTeam(i)
+  );
+
+}
+
+
+
+/* =========================
+   تحديث الحركة
+========================= */
+
+function updateTeam(index){
+
+  const position =
+    positions[index];
+
+
+  const percent =
+    position / 6;
+
+
+  const runner =
+    document.getElementById(
+      `runner-${index}`
+    );
+
+
+  runner.style.left =
+
+    `calc(
+      20px +
+      (100% - 40px)
+      * ${percent}
+    )`;
+
+
+
+  const progress =
+    document.getElementById(
+      `progress-${index}`
+    );
+
+
+  progress.style.width =
+
+    `calc(
+      (100% - 40px)
+      * ${percent}
+    )`;
+
+
+
+  const dots =
+    document.querySelectorAll(
+      `#stations-${index}
+      .station`
+    );
+
+
+  dots.forEach(
+    (dot,i)=>{
+
+      if(i<=position){
+
+        dot.style.background =
+          teamsData[index].color;
+
+        dot.classList.add("done");
+
+      }
+
+      else{
+
+        dot.style.background =
+          "#fff";
+
+        dot.classList.remove("done");
+
+      }
+
+    }
+  );
+
+
+  const text =
+    document.getElementById(
+      `state-${index}`
+    );
+
+
+  const team =
+    document.getElementById(
+      `team-${index}`
+    );
+
+
+  if(position===0){
+
+    text.textContent =
+      "عند البداية";
+
+    team.classList.remove(
+      "finished"
+    );
+
+  }
+
+  else if(position===6){
+
+    text.textContent =
+      "وصلن إلى النهاية";
+
+    team.classList.add(
+      "finished"
+    );
+
+  }
+
+  else{
+
+    text.textContent =
+      "في الطريق";
+
+    team.classList.remove(
+      "finished"
+    );
+
+  }
+
+}
+
+
+
+/* =========================
+   تحريك المجموعة
+========================= */
+
+function moveTeam(
+  index,
+  direction
+){
+
+  const old =
+    positions[index];
+
+
+  positions[index] =
+
+    Math.max(
+      0,
+      Math.min(
+        6,
+        positions[index]
+          + direction
+      )
+    );
+
+
+  updateTeam(index);
+
+
+  if(
+    positions[index]===6 &&
+    old!==6
+  ){
+
+    celebrate(index);
+
+  }
+
+}
+
+
+
+/* =========================
+   الاحتفالية
+========================= */
+
+function celebrate(index){
+
+  const overlay =
+    document.getElementById(
+      "winner"
+    );
+
+
+  const runner =
+    document.getElementById(
+      `runner-${index}`
+    );
+
+
+  const star =
+    document.getElementById(
+      "finishStar"
+    );
+
+
+  document.getElementById(
+    "winnerName"
+  ).textContent =
+    teamsData[index].name;
+
+
+  document.getElementById(
+    "winnerIcon"
+  ).innerHTML =
+
+    createSVG(
+      teamsData[index].icon,
+      teamsData[index].color
+    );
+
+
+  /* حركة رمز المجموعة */
+
+  runner.classList.remove(
+    "arrived"
+  );
+
+  void runner.offsetWidth;
+
+  runner.classList.add(
+    "arrived"
+  );
+
+
+  /* حركة نجمة النهاية */
+
+  star.classList.remove(
+    "celebrate"
+  );
+
+  void star.offsetWidth;
+
+  star.classList.add(
+    "celebrate"
+  );
+
+
+  /* فتح شاشة الفوز */
+
+  overlay.style.display =
+    "flex";
+
+
+  createConfetti();
+
+  createBubbles();
+
+  playWinSound();
+
+
+  setTimeout(()=>{
+
+    overlay.style.display =
+      "none";
+
+    overlay
+      .querySelectorAll(
+        ".confetti,.bubble"
+      )
+      .forEach(
+        item=>item.remove()
+      );
+
+  },3200);
+
+}
+
+
+
+/* =========================
+   الكونفيتي
+========================= */
+
+function createConfetti(){
+
+  const overlay =
+    document.getElementById(
+      "winner"
+    );
+
+
+  const colors = [
+
+    "#e8b5c9",
+    "#b8a7d4",
+    "#f0d493",
+    "#a7c8b8",
+    "#a9b8da",
+    "#efcbd9",
+    "#d7b6d4"
+
+  ];
+
+
+  for(let i=0;i<75;i++){
+
+    const piece =
+      document.createElement(
+        "span"
+      );
+
+
+    piece.className =
+      "confetti";
+
+
+    piece.style.left =
+      Math.random()*100+"%";
+
+
+    piece.style.background =
+      colors[
+        Math.floor(
+          Math.random()
+          * colors.length
+        )
+      ];
+
+
+    piece.style.width =
+      6 +
+      Math.random()*7
+      +"px";
+
+
+    piece.style.height =
+      8 +
+      Math.random()*11
+      +"px";
+
+
+    piece.style.animationDuration =
+      1.8 +
+      Math.random()*1.5
+      +"s";
+
+
+    piece.style.animationDelay =
+      Math.random()*.5
+      +"s";
+
+
+    overlay.appendChild(
+      piece
+    );
+
+  }
+
+}
+
+
+
+/* =========================
+   دوائر ولمعات
+========================= */
+
+function createBubbles(){
+
+  const overlay =
+    document.getElementById(
+      "winner"
+    );
+
+
+  const colors = [
+
+    "#f4d5e1",
+    "#e1d7f0",
+    "#f5e5ba",
+    "#d8ebe2"
+
+  ];
+
+
+  for(let i=0;i<12;i++){
+
+    const bubble =
+      document.createElement(
+        "span"
+      );
+
+
+    bubble.className =
+      "bubble";
+
+
+    const size =
+      20 +
+      Math.random()*45;
+
+
+    bubble.style.width =
+      size+"px";
+
+    bubble.style.height =
+      size+"px";
+
+
+    bubble.style.left =
+      10 +
+      Math.random()*80
+      +"%";
+
+
+    bubble.style.top =
+      10 +
+      Math.random()*80
+      +"%";
+
+
+    bubble.style.background =
+      colors[
+        Math.floor(
+          Math.random()
+          * colors.length
+        )
+      ];
+
+
+    bubble.style.animationDelay =
+      Math.random()*.5
+      +"s";
+
+
+    overlay.appendChild(
+      bubble
+    );
+
+  }
+
+}
+
+
+
+/* =========================
+   صوت الفوز
+   بدون ملف صوت خارجي
+========================= */
+
+function playWinSound(){
+
+  try{
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+
+    const ctx =
+      new AudioContext();
+
+
+    const notes = [
+      523.25,
+      659.25,
+      783.99,
+      1046.50
+    ];
+
+
+    notes.forEach(
+      (frequency,index)=>{
+
+        const oscillator =
+          ctx.createOscillator();
+
+
+        const gain =
+          ctx.createGain();
+
+
+        oscillator.type =
+          "sine";
+
+
+        oscillator.frequency.value =
+          frequency;
+
+
+        gain.gain.setValueAtTime(
+          0,
+          ctx.currentTime
+        );
+
+
+        gain.gain.linearRampToValueAtTime(
+          .12,
+          ctx.currentTime
+          + index*.12
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+          .001,
+          ctx.currentTime
+          + index*.12
+          + .45
+        );
+
+
+        oscillator.connect(gain);
+
+        gain.connect(
+          ctx.destination
+        );
+
+
+        oscillator.start(
+          ctx.currentTime
+          + index*.12
+        );
+
+
+        oscillator.stop(
+          ctx.currentTime
+          + index*.12
+          + .5
+        );
+
+      }
+    );
+
+  }
+
+  catch(error){
+
+    console.log(
+      "الصوت غير مدعوم"
+    );
+
+  }
+
+}
+
+
+
+/* =========================
+   إعادة البداية
+========================= */
+
+function resetGame(){
+
+  positions.fill(0);
+
+
+  teamsData.forEach(
+    (_,i)=>updateTeam(i)
+  );
+
+
+  document
+    .getElementById(
+      "finishStar"
+    )
+    .classList
+    .remove(
+      "celebrate"
+    );
+
+}
+
+
+
+/* تشغيل */
+
+buildTeams();
+
+</script>
+
+</body>
+</html>
